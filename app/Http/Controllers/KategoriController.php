@@ -33,7 +33,13 @@ class KategoriController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $kategori = Kategori::find($id);
+
+        if (!$kategori) {
+            return response()->json(['message' => 'Kategori tidak ditemukan'], 404);
+        }
+
+        return response()->json($kategori);
     }
 
     /**
@@ -41,7 +47,19 @@ class KategoriController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'nama_kategori' => 'required|string|max:255'
+        ]);
+
+        $kategori = Kategori::find($id);
+
+        if (!$kategori) {
+            return response()->json(['message' => 'Kategori tidak ditemukan'], 404);
+        }
+
+        $kategori->update($request->all());
+
+        return response()->json($kategori);
     }
 
     /**
@@ -49,6 +67,14 @@ class KategoriController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $kategori = Kategori::find($id);
+
+        if (!$kategori) {
+            return response()->json(['message' => 'Kategori tidak ditemukan'], 404);
+        }
+
+        $kategori->delete();
+
+        return response()->json(['message' => 'Kategori berhasil dihapus']);
     }
 }
