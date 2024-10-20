@@ -15,7 +15,6 @@ class BukuController extends Controller
     public function index()
 
     {
-
         // dd(Buku::all());
         return Buku::all();
     }
@@ -53,7 +52,9 @@ class BukuController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $buku = Buku::findOrFail($id);
+
+        return response()->json($buku);
     }
 
     /**
@@ -61,7 +62,22 @@ class BukuController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        try {
+            $request->validate([
+                'judul' => 'string|max:255',
+                'penulis' => 'string|max:255',
+                'harga' => 'integer|min:1000',
+                'stok' => 'integer|min:0',
+                'kategori_id' => 'integer|exists:kategoris,id'
+            ]);
+
+            $buku = Buku::findOrFail($id);
+            $buku->update($request->all());
+
+            return response()->json($buku);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 
     /**
@@ -69,6 +85,9 @@ class BukuController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $buku = Buku::findOrFail($id);
+        $buku->delete();
+
+        return response()->json(null, 204);
     }
 }
