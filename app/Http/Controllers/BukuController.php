@@ -41,8 +41,14 @@ class BukuController extends Controller
     {
 
         $kategori = $request->input('kategori');
+        $judul = $request->input('judul');
+
         $buku = Buku::whereHas('kategori', function ($query) use ($kategori) {
-            $query->where('nama_kategori', 'like', '%' . $kategori . '%');
+            if ($kategori) {
+                $query->where('nama_kategori', 'like', '%' . $kategori . '%');
+            }
+        })->when($judul, function ($query) use ($judul) {
+            return $query->where('judul', 'like', '%' . $judul . '%');
         })->get();
 
         return response()->json($buku);
