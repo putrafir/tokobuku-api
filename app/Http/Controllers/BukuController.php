@@ -16,8 +16,8 @@ class BukuController extends Controller
 
     {
 
-        dd(Buku::all());
-        return Buku::all()->with;
+        // dd(Buku::all());
+        return Buku::all();
     }
 
     /**
@@ -29,7 +29,7 @@ class BukuController extends Controller
         $request->validate([
             'judul' => 'required|string|max:255',
             'penulis' => 'required|string|max:255',
-            'harga' => 'required|integer|min:0',
+            'harga' => 'required|integer|min:1000',
             'stok' => 'required|integer|min:0',
             'kategori_id' => 'required|integer|exists:kategoris,id'
         ]);
@@ -41,26 +41,12 @@ class BukuController extends Controller
     public function search(Request $request)
     {
 
+        $kategori = $request->input('kategori');
+        $buku = Buku::whereHas('kategori', function ($query) use ($kategori) {
+            $query->where('nama_kategori', 'like', '%' . $kategori . '%');
+        })->get();
 
-        $query = Buku::query();
-
-        // Filter berdasarkan kategori jika ada
-        if ($request->has('kategori')) {
-            $query->whereHas('kategori', function ($q) use ($request) {
-                $q->where('nama_kategori', 'like', '%' . $request->kategori . '%');
-            });
-        }
-
-        // Filter berdasarkan judul jika ada
-        if ($request->has('judul')) {
-            $query->where('judul', 'like', '%' . $request->judul . '%');
-        }
-
-
-        // Mendapatkan hasil dari query
-        $bukus = $query->get();
-
-        return response()->json($bukus);
+        return response()->json($buku);
     }
     /**
      * Display the specified resource.
